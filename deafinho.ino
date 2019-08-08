@@ -9,7 +9,7 @@
   converter a amplitude (defasar) // tratamento
 
    
-
+  0, 1, 2, 3 Portas digitais
 */
  
 #include "Ultrasonic.h"
@@ -73,36 +73,27 @@ void test_Speaker(){
   }
 }
 
-int microphone_reader(){
-  INFO("Ouvindo ...");
-  
-  int _microphone;
-
-  // analogRead(PIN_MICROPHONE);
-  
-  return _microphone;
-}
 
 int animal_distance_reader(){
   INFO("Medindo a distancia do animal");
 
   int _animal_distance = ultrasonic_animal.read(); //distance in CM
-
+  INFO(animal_distance);
   return _animal_distance;
 }
 
 
 
-void door(bool status){
+void door(bool control_door){
   // false  ->  open
   // true   ->  close
 
-  control_door = status;
 
   digitalWrite(PIN_DOOR_1,control_door);
   digitalWrite(PIN_DOOR_2,!control_door);
 
-  INFO("Porta " + control_door ? "Fechada":"Aberta"); //ver se compila
+  LOG("Porta ");
+  INFO(control_door);
 }
 
 void door_stop(){
@@ -132,7 +123,7 @@ void setup() {
 
 }
 
-int soundPresent(uint8_t  _pin){
+int microphone_reader(uint8_t  _pin){
   int s=0;
   int aux=100000;
   for(int i=0;i<250;i++){
@@ -145,57 +136,40 @@ int soundPresent(uint8_t  _pin){
   return aux;
 }
 
+void turn_led(uint8_t  _pin, bool _status){
+  digitalWrite(_pin,_status);
+  INFO("Led " + _status);
+}
 
 void loop() {
   
-  // Serial.print(analogRead(0));
-  // Serial.print("\t");
-  // Serial.println(analogRead(1));
-  // delay(250);
-  
-  // test_Speaker();
-  float m1 = test_Microphone(PIN_MICROPHONE_1);
-  // LOG(-500);  // To freeze the lower limit
-  // LOG(" ");
-  // LOG(500);  // To freeze the upper limit
-  // LOG(" ");
-  // LOGln(m1-500);  // To send all three 'data' points to the plotter
-  // LOG(m1);
-  // LOG(" ");  
-  // m1 = (m1/800)*255;
-  // if(m1 > 0){
-  //   analogWrite(PIN_BUZZER, m1);
-  //   analogWrite(PIN_BUZZER_2, 0); 
-  // }
-  // else{
-  //   analogWrite(PIN_BUZZER, 0);
-  //   analogWrite(PIN_BUZZER_2, m1); 
-  // }
-
-  tone(PIN_BUZZER,700);
-  LOG(analogRead(A3));
-  // delay(100);
-  // delayMicroseconds(T);
-  // delay(300);
-
-
-  // LOG(m1);  
-  // LOG("\t");
-  // int m2 = test_Microphone(PIN_MICROPHONE_2);
-  // LOG(m2);  
-  // int a = animal_distance_reader();
-  LOG("\n");
-  // delay(1);
-
 
   animal_distance = animal_distance_reader();
 
   if(animal_distance > 100){
-
+    door(1);
+  }
+  else{
+    door(0);
   }
 
-  sound_extern = soundPresent(PIN_MICROPHONE_1);
-  sound_intern = soundPresent(PIN_MICROPHONE_2);
+/* 
+  sound_extern = microphone_reader(PIN_MICROPHONE_1);
 
+  if(sound_extern > 200){
+    turn_led(PIN_LED_SOUND_EXTERN,1); //liga led externo
+  }
+  else {
+    turn_led(PIN_LED_SOUND_EXTERN,0); //liga led externo
+  }
 
+  sound_intern = microphone_reader(PIN_MICROPHONE_2);
+
+  if(sound_intern < 100){
+    turn_led(PIN_LED_SOUND_INTERN,1); //liga led indicativo som interno
+  }
+  else {
+    turn_led(PIN_LED_SOUND_INTERN,0); //liga led interno
+  }
+*/
 }
