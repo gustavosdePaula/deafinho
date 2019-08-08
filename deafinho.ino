@@ -24,7 +24,12 @@
 // OUTPUTS
 #define PIN_BUZZER        5
 #define PIN_BUZZER_2      6
-#define PIN_DOOR          A4
+
+#define PIN_DOOR_1        1
+#define PIN_DOOR_2        2
+
+#define PIN_LED_SOUND_EXTERN  10
+#define PIN_LED_SOUND_INTERN  9
 
 // INPUTS
 #define PIN_MICROPHONE_1    A0
@@ -39,9 +44,12 @@ Ultrasonic ultrasonic_animal(PIN_ANIMAL_SENSOR_TRIGGER, PIN_ANIMAL_SENSOR_ECHO);
 
 //Variables
 
-float frequency = 0.0;
+int sound_extern = 0;
+int sound_intern = 0;
+
 int microphone = 0;
 int animal_distance = 0;
+
 bool control_door = false;
 
 int T=10000;
@@ -83,12 +91,7 @@ int animal_distance_reader(){
   return _animal_distance;
 }
 
-void sound_output(float f){
-  // LOG("Ligando o som" + "\n");
-  float _frequency = f;
 
-
-}
 
 void door(bool status){
   // false  ->  open
@@ -96,10 +99,18 @@ void door(bool status){
 
   control_door = status;
 
-  digitalWrite(PIN_DOOR,control_door);
+  digitalWrite(PIN_DOOR_1,control_door);
+  digitalWrite(PIN_DOOR_2,!control_door);
 
-  INFO("Porta " + control_door ?"Fechada":"Aberta"); //ver se compila
+  INFO("Porta " + control_door ? "Fechada":"Aberta"); //ver se compila
+}
 
+void door_stop(){
+
+  digitalWrite(PIN_DOOR_1,0);
+  digitalWrite(PIN_DOOR_2,0);
+
+  INFO("Porta Desativada"); 
 }
 
 int test_Microphone(uint8_t  _pin){
@@ -114,12 +125,26 @@ void setup() {
 
   Serial.begin(9600);
   pinMode(PIN_BUZZER, OUTPUT);
-  pinMode(PIN_DOOR, OUTPUT);
+  pinMode(PIN_DOOR_1, OUTPUT);
   
   // pinMode(PIN_BUZZER, OUTPUT);
 
 
 }
+
+int soundPresent(uint8_t  _pin){
+  int s=0;
+  int aux=100000;
+  for(int i=0;i<250;i++){
+    if(aux >= s)
+      aux = s; // pega o Valor Minimo
+
+    s = analogRead(_pin);
+  }
+
+  return aux;
+}
+
 
 void loop() {
   
@@ -161,5 +186,16 @@ void loop() {
   // int a = animal_distance_reader();
   LOG("\n");
   // delay(1);
+
+
+  animal_distance = animal_distance_reader();
+
+  if(animal_distance > 100){
+
+  }
+
+  sound_extern = soundPresent(PIN_MICROPHONE_1);
+  sound_intern = soundPresent(PIN_MICROPHONE_2);
+
 
 }
