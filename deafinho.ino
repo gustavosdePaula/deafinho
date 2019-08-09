@@ -39,6 +39,26 @@
 #define PIN_ANIMAL_SENSOR_ECHO    6
 
 
+// CONSTANTS VALUES
+#define   ANIMAL_DISTANCE_VALUE 100
+#define   SOUND_EXTERN_LEVEL_VALUE 500
+#define   SOUND_INTERN_LEVEL_VALUE 100
+
+// MOTORS DEFINE
+
+#define pinSH_CP  4   //Pino Clock  DIR_CLK
+#define pinST_CP  12  //Pino Latch  DIR_LATCH
+#define pinDS     8   //Pino Data   DIR_SER
+#define pinEnable 7   //Pino Enable DIR_EN
+
+#define pinMotor3PWM 5
+
+#define qtdeCI   1
+
+#define bitMotor3A 5
+#define bitMotor3B 7
+
+
 
 Ultrasonic ultrasonic_animal(PIN_ANIMAL_SENSOR_TRIGGER, PIN_ANIMAL_SENSOR_ECHO);
 
@@ -120,8 +140,56 @@ void setup() {
   
   // pinMode(PIN_BUZZER, OUTPUT);
 
+  ///Motor setup
+  pinMode(pinSH_CP, OUTPUT);
+  pinMode(pinST_CP, OUTPUT);
+  pinMode(pinEnable, OUTPUT);
+  pinMode(pinDS, OUTPUT);
+
+  pinMode(pinMotor3PWM, OUTPUT);
+   
+  digitalWrite(pinEnable, LOW);
+
 
 }
+
+void testMotor(){
+  Serial.println("Motores A=HIGH B=LOW - Fecha Porta - Cabo Azul: A, Cabo Branco: B");
+  ci74HC595Write(bitMotor3A, HIGH);
+  ci74HC595Write(bitMotor3B, LOW);
+  delay(1000);
+
+  Serial.println("Motores A=LOW B=HIGH - Abre Porta - Cabo Azul: A, Cabo Branco: B");
+  ci74HC595Write(bitMotor3A, LOW);
+  ci74HC595Write(bitMotor3B, HIGH);
+  delay(1000);
+}
+
+void ci74HC595Write(byte pino, bool estado) {
+  static byte ciBuffer[qtdeCI];
+
+  bitWrite(ciBuffer[pino / 8], pino % 8, estado);
+  
+  digitalWrite(pinST_CP, LOW); //Inicia a Transmissão
+  
+  digitalWrite(pinDS, LOW);    //Apaga Tudo para Preparar Transmissão
+  digitalWrite(pinSH_CP, LOW);
+
+  for (int nC = qtdeCI-1; nC >= 0; nC--) {
+      for (int nB = 7; nB >= 0; nB--) {
+  
+          digitalWrite(pinSH_CP, LOW);  //Baixa o Clock      
+          
+          digitalWrite(pinDS,  bitRead(ciBuffer[nC], nB) );     //Escreve o BIT
+          
+          digitalWrite(pinSH_CP, HIGH); //Eleva o Clock
+          digitalWrite(pinDS, LOW);     //Baixa o Data para Previnir Vazamento      
+      }  
+  }
+  
+  digitalWrite(pinST_CP, HIGH);  //Finaliza a Transmissão
+}
+
 
 int microphone_reader(uint8_t  _pin){
   int s=0;
@@ -146,7 +214,7 @@ void loop() {
 
   animal_distance = animal_distance_reader();
 
-  if(animal_distance > 100){
+  if(animal_distance > ANIMAL_DISTANCE_VALUE){
     door(1);
   }
   else{
@@ -156,7 +224,7 @@ void loop() {
 /* 
   sound_extern = microphone_reader(PIN_MICROPHONE_1);
 
-  if(sound_extern > 200){
+  if(sound_extern > SOUND_EXTERN_LEVEL_VALUE){
     turn_led(PIN_LED_SOUND_EXTERN,1); //liga led externo
   }
   else {
@@ -165,7 +233,7 @@ void loop() {
 
   sound_intern = microphone_reader(PIN_MICROPHONE_2);
 
-  if(sound_intern < 100){
+  if(sound_intern < SOUND_INTERN_LEVEL_VALUE){
     turn_led(PIN_LED_SOUND_INTERN,1); //liga led indicativo som interno
   }
   else {
