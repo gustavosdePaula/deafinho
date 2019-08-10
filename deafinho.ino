@@ -109,8 +109,8 @@ void door(bool control_door){
   // true   ->  close
 
 
-  digitalWrite(PIN_DOOR_1,control_door);
-  digitalWrite(PIN_DOOR_2,!control_door);
+  ci74HC595Write(bitMotor3A, control_door);
+  ci74HC595Write(bitMotor3B, !control_door);
 
   LOG("Porta ");
   INFO(control_door);
@@ -118,8 +118,8 @@ void door(bool control_door){
 
 void door_stop(){
 
-  digitalWrite(PIN_DOOR_1,0);
-  digitalWrite(PIN_DOOR_2,0);
+  ci74HC595Write(bitMotor3A, LOW);
+  ci74HC595Write(bitMotor3B, LOW);
 
   INFO("Porta Desativada"); 
 }
@@ -216,9 +216,13 @@ void loop() {
 
   if(animal_distance > ANIMAL_DISTANCE_VALUE){
     door(1);
+    delay(1000);
+    door_stop;
   }
   else{
     door(0);
+    delay(1000);
+    door_stop;
   }
 
 /* 
