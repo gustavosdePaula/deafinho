@@ -40,7 +40,8 @@
 
 
 // CONSTANTS VALUES
-#define   ANIMAL_DISTANCE_VALUE 100
+#define   ANIMAL_MAX_DISTANCE_VALUE 100
+#define   ANIMAL_MIN_DISTANCE_VALUE 50
 #define   SOUND_EXTERN_LEVEL_VALUE 500
 #define   SOUND_INTERN_LEVEL_VALUE 100
 
@@ -214,7 +215,7 @@ void loop() {
 
   animal_distance = animal_distance_reader();
 
-  if(animal_distance > ANIMAL_DISTANCE_VALUE){
+  if(animal_distance > ANIMAL_MIN_DISTANCE_VALUE && animal_distance < ANIMAL_MAX_DISTANCE_VALUE){
     door(1);
     delay(1000);
     door_stop;
