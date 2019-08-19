@@ -32,16 +32,16 @@
 #define PIN_LED_SOUND_INTERN  9
 
 // INPUTS
-#define PIN_MICROPHONE_1    A0
+#define PIN_MICROPHONE_1    A4
 #define PIN_MICROPHONE_2    A5
 
-#define PIN_ANIMAL_SENSOR_TRIGGER 13
-#define PIN_ANIMAL_SENSOR_ECHO    3
+#define PIN_ANIMAL_SENSOR_TRIGGER A5
+#define PIN_ANIMAL_SENSOR_ECHO    A0
 
 
 // CONSTANTS VALUES
-#define   ANIMAL_MAX_DISTANCE_VALUE 100
-#define   ANIMAL_MIN_DISTANCE_VALUE 50
+#define   ANIMAL_MAX_DISTANCE_VALUE 12
+#define   ANIMAL_MIN_DISTANCE_VALUE 1
 #define   SOUND_EXTERN_LEVEL_VALUE 500
 #define   SOUND_INTERN_LEVEL_VALUE 100
 
@@ -214,6 +214,11 @@ void loop() {
   
 
   animal_distance = animal_distance_reader();
+
+  // INFO(animal_distance);
+
+  // delay(50);
+  
 
   if(animal_distance > ANIMAL_MIN_DISTANCE_VALUE && animal_distance < ANIMAL_MAX_DISTANCE_VALUE){
     door(1);
