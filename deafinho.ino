@@ -25,10 +25,7 @@
 #define PIN_BUZZER        5
 #define PIN_BUZZER_2      6
 
-#define PIN_DOOR_1        1
-#define PIN_DOOR_2        2
-
-#define PIN_LED_SOUND_EXTERN  10
+#define PIN_LED_SOUND_EXTERN  A2
 #define PIN_LED_SOUND_INTERN  9
 
 // INPUTS
@@ -44,6 +41,8 @@
 #define   ANIMAL_MIN_DISTANCE_VALUE 1
 #define   SOUND_EXTERN_LEVEL_VALUE 500
 #define   SOUND_INTERN_LEVEL_VALUE 100
+#define   TIMER_DELAY 1000
+
 
 // MOTORS DEFINE
 
@@ -75,6 +74,9 @@ bool control_door = false;
 
 int T=10000;
 int steps = 1000;
+
+int timer = 0;
+int last_timer = 0;
 
 void test_Speaker(){
 
@@ -137,7 +139,7 @@ void setup() {
 
   Serial.begin(9600);
   pinMode(PIN_BUZZER, OUTPUT);
-  pinMode(PIN_DOOR_1, OUTPUT);
+  pinMode(PIN_LED_SOUND_EXTERN, OUTPUT);
   
   // pinMode(PIN_BUZZER, OUTPUT);
 
@@ -150,6 +152,8 @@ void setup() {
   pinMode(pinMotor3PWM, OUTPUT);
    
   digitalWrite(pinEnable, LOW);
+  analogWrite(PIN_LED_SOUND_EXTERN, 255);
+  timer = millis();
 
 
 }
@@ -212,6 +216,15 @@ void turn_led(uint8_t  _pin, bool _status){
 
 void loop() {
   
+  last_timer = millis()-timer;
+  
+  if (last_timer >= TIMER_DELAY)
+  {
+    timer = millis();
+  }
+  
+  
+
 
   animal_distance = animal_distance_reader();
 
@@ -219,17 +232,26 @@ void loop() {
 
   // delay(50);
   
+  analogWrite(PIN_LED_SOUND_EXTERN, 255);
+  delay(1000);
+  analogWrite(PIN_LED_SOUND_EXTERN, 0);
+  delay(1000);
 
   if(animal_distance > ANIMAL_MIN_DISTANCE_VALUE && animal_distance < ANIMAL_MAX_DISTANCE_VALUE){
     door(1);
-    delay(1000);
-    door_stop;
+    timer = millis();
+    
   }
   else{
     door(0);
-    delay(1000);
-    door_stop;
+    timer = millis();
   }
+
+  if(last_timer > TIMER_DELAY){
+    door_stop();    
+    // INFO("Timer---------------------------------------------------------------- ");
+  }
+
 
 /* 
   sound_extern = microphone_reader(PIN_MICROPHONE_1);
